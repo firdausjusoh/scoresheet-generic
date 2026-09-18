@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Scoresheet</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .rubric-btn { transition: all 0.15s ease; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col justify-between">
+    <div>
+        <!-- Dynamic Header -->
+        <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-xl px-6 py-6 relative">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <span id="headerTag" class="bg-blue-500/30 text-blue-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Assessment Engine</span>
+                    <h1 id="headerTitle" class="text-2xl font-black mt-1 tracking-tight">Speaking Assessment Engine</h1>
+                    <p class="text-blue-100 text-xs mt-1"><i class="fa-solid fa-camera mr-1 text-amber-400"></i>Matric-Synced Profile Photos</p>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <a href="setup.html" class="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-xl border border-white/20 flex items-center gap-1.5 transition-colors">
+                        <i class="fa-solid fa-sliders"></i> Modify Rubric
+                    </a>
+                    <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20">
+                        <label class="block text-[10px] font-semibold text-blue-200 uppercase tracking-wider">Evaluator Name</label>
+                        <input type="text" id="examinerName" placeholder="Dr. / Mr. / Ms." oninput="saveDataToStorage()" class="bg-white text-slate-800 text-sm font-medium px-3 py-1 rounded-lg border-none focus:outline-2 focus:outline-amber-400 w-48 mt-0.5">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-6">
+            <!-- Group Selector Bar -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/60 mb-6 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wide flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-indigo-600"></i> Select Active Group Slot (Max 10)
+                    </h2>
+                    <span class="text-xs text-blue-600 bg-blue-50 font-semibold px-2.5 py-0.5 rounded-full">
+                        <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Live Siswa Directory Sync
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-10 gap-2" id="groupSelectorGrid"></div>
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <div class="w-full sm:w-auto">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Group Label/Name:</label>
+                        <input type="text" id="groupLabelInput" oninput="updateGroupLabel()" class="bg-white border border-slate-200 rounded-lg px-3 py-1 text-sm font-semibold text-slate-700 focus:outline-indigo-500 w-full sm:w-48">
+                    </div>
+                    <div class="text-xs text-slate-500">
+                        <i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> <strong>Candidates' photo will be loaded automatically. Only matric ID is needed.</strong> Data is stored in browser storage.
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-6">
+                <!-- Candidate List Sidebar -->
+                <div class="md:col-span-1 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/60 flex flex-col justify-between min-h-[300px]">
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-700 mb-3 flex items-center justify-between">
+                            <span><i class="fa-solid fa-users text-blue-600 mr-2"></i> Candidates</span>
+                            <span class="text-xs text-slate-400 font-normal" id="candidateCount">0 members</span>
+                        </h3>
+                        <div id="studentList" class="space-y-2"></div>
+                    </div>
+                    <button onclick="addNewStudent()" class="mt-4 w-full bg-slate-50 hover:bg-blue-50 text-blue-600 text-xs font-semibold py-2.5 px-4 rounded-xl border border-dashed border-blue-200 flex items-center justify-center gap-2 cursor-pointer transition-colors">
+                        <i class="fa-solid fa-user-plus"></i> Add New Candidate
+                    </button>
+                </div>
+
+                <!-- Scoring Panel -->
+                <div class="md:col-span-3 lg:col-span-4 bg-white rounded-2xl p-6 shadow-sm border border-slate-200/60 relative">
+                    <!-- Current Candidate Header Card -->
+                    <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-2xl p-6 mb-6 flex flex-col lg:flex-row justify-between items-center gap-6 shadow-xl border border-slate-700">
+                        <div class="flex flex-col sm:flex-row items-center gap-6 w-full lg:w-auto text-center sm:text-left">
+                            <div class="w-28 h-28 rounded-full bg-slate-700 border-4 border-amber-400 shadow-lg flex items-center justify-center text-2xl font-bold overflow-hidden shrink-0" id="cardAvatar">
+                                C1
+                            </div>
+                            <div class="grow grid grid-cols-1 sm:grid-cols-2 gap-4 w-full min-w-[260px]">
+                                <div>
+                                    <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Candidate Name</label>
+                                    <input type="text" id="currentStudentName" oninput="syncStudentIdentity()" class="bg-slate-900/40 border border-slate-700/60 rounded-xl px-3 py-2 text-base font-bold focus:border-amber-400 focus:outline-none text-white w-full">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-amber-400 font-bold uppercase tracking-wider mb-1"><i class="fa-solid fa-id-card mr-1"></i> Matric Number</label>
+                                    <input type="text" id="currentStudentMatric" oninput="syncStudentIdentity()" placeholder="e.g. 084007" class="bg-slate-900/40 border border-slate-700/60 rounded-xl px-3 py-2 text-base font-mono font-bold focus:border-amber-400 focus:outline-none text-amber-300 w-full">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-6 items-center justify-around bg-slate-950/50 px-6 py-4 rounded-2xl border border-slate-800 w-full lg:w-auto shrink-0">
+                            <div class="text-center px-2">
+                                <span class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-1">Raw Score</span>
+                                <span class="text-2xl font-bold text-slate-200" id="liveRaw">0 <span class="text-sm text-slate-500" id="maxRawLabel">/0</span></span>
+                            </div>
+                            <div class="w-px h-12 bg-slate-800"></div>
+                            <div class="text-center px-2">
+                                <span class="block text-[10px] text-amber-400 uppercase tracking-wider font-bold mb-1" id="weightedFinalLabel">Final Grade (0%)</span>
+                                <span class="text-3xl font-black text-amber-400" id="liveFinal">0.00<span class="text-lg font-bold">%</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamically Injected Rubrics Container -->
+                    <div id="rubricsContainer" class="space-y-6"></div>
+                </div>
+            </div>
+
+            <!-- Group Dashboard Summary -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/60">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800"><i class="fa-solid fa-table-list text-indigo-600 mr-2"></i>Active Group Summary</h2>
+                    </div>
+                    <button onclick="exportItemizedCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-4 rounded-xl transition-colors flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-file-excel"></i> Export Detailed Spreadsheet (.csv)
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse" id="summaryTable">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-400 font-bold text-[11px] uppercase tracking-wider border-b border-slate-100" id="summaryTableHeader"></tr>
+                        </thead>
+                        <tbody id="summaryTableBody" class="divide-y divide-slate-100 text-xs font-medium text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const MAX_GROUPS = 10;
+        let rubricConfig = null;
+        let systemData = { examinerName: "", groups: {} };
+        let currentGroupIndex = 1;
+
+        function loadRubricConfig() {
+            const saved = localStorage.getItem('Dynamic_Assessment_Rubric_Config');
+            if (!saved) {
+                // If not set up yet, redirect to setup landing page
+                window.location.href = "setup.html";
+                return false;
+            }
+            rubricConfig = JSON.parse(saved);
+            document.getElementById('headerTitle').innerText = rubricConfig.courseTitle || "Assessment Engine";
+            document.getElementById('weightedFinalLabel').innerText = `Weighted (${rubricConfig.weight || 100}%)`;
+            return true;
+        }
+
+        function calculateMaxRaw() {
+            let total = 0;
+            rubricConfig.tasks.forEach(t => t.criteria.forEach(c => total += c.max));
+            return total;
+        }
+
+        function createBlankGroup(index) {
+            const initialScores = {};
+            rubricConfig.tasks.forEach(t => t.criteria.forEach(c => initialScores[c.id] = 0));
+
+            return {
+                label: `Group Slot ${index}`,
+                students: [
+                    { id: 1, name: "Candidate 1", matric: "", scores: { ...initialScores } },
+                    { id: 2, name: "Candidate 2", matric: "", scores: { ...initialScores } },
+                    { id: 3, name: "Candidate 3", matric: "", scores: { ...initialScores } },
+                    { id: 4, name: "Candidate 4", matric: "", scores: { ...initialScores } }
+                ],
+                activeStudentId: 1
+            };
+        }
+
+        function initEngine() {
+            if (!loadRubricConfig()) return;
+
+            document.getElementById('maxRawLabel').innerText = `/${calculateMaxRaw()}`;
+
+            const storageKey = `Dynamic_Assessment_Data_${rubricConfig.courseTitle.replace(/\s+/g, '_')}`;
+            const savedData = localStorage.getItem(storageKey);
+            if (savedData) {
+                try { systemData = JSON.parse(savedData); } catch (e) { resetBlankData(); }
+            } else { resetBlankData(); }
+
+            for (let i = 1; i <= MAX_GROUPS; i++) {
+                if (!systemData.groups[i]) systemData.groups[i] = createBlankGroup(i);
+            }
+
+            document.getElementById('examinerName').value = systemData.examinerName || "";
+            renderRubricEngine();
+            renderGroupSelectors();
+            switchGroupContext(1);
+        }
+
+        function resetBlankData() { systemData = { examinerName: "", groups: {} }; }
+
+        function saveDataToStorage() {
+            systemData.examinerName = document.getElementById('examinerName').value;
+            const storageKey = `Dynamic_Assessment_Data_${rubricConfig.courseTitle.replace(/\s+/g, '_')}`;
+            localStorage.setItem(storageKey, JSON.stringify(systemData));
+        }
+
+        function renderRubricEngine() {
+            const container = document.getElementById('rubricsContainer');
+            container.innerHTML = '';
+
+            rubricConfig.tasks.forEach((task, tIdx) => {
+                const taskMax = task.criteria.reduce((sum, c) => sum + c.max, 0);
+                const taskDiv = document.createElement('div');
+                taskDiv.className = "bg-slate-50 rounded-xl p-4 border border-slate-200/50";
+                taskDiv.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2 mb-4">
+                        <h2 class="text-sm font-bold text-indigo-900 flex items-center gap-2">
+                            <span class="w-5 h-5 rounded bg-indigo-100 text-indigo-700 text-[10px] flex items-center justify-center font-black">${tIdx + 1}</span>
+                            ${task.name} (Max: ${taskMax})
+                        </h2>
+                    </div>
+                    <div class="space-y-4" id="task_crit_list_${tIdx}"></div>
+                `;
+                container.appendChild(taskDiv);
+
+                const critList = taskDiv.querySelector(`#task_crit_list_${tIdx}`);
+                task.criteria.forEach(c => {
+                    const cRow = document.createElement('div');
+                    cRow.innerHTML = `
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">${c.name} (Max ${c.max})</label>
+                        <div class="grid grid-cols-${Math.min(c.max, 10)} gap-1.5" id="grid_${c.id}"></div>
+                    `;
+                    critList.appendChild(cRow);
+
+                    const grid = cRow.querySelector(`#grid_${c.id}`);
+                    for (let val = 1; val <= c.max; val++) {
+                        const btn = document.createElement('button');
+                        btn.className = "rubric-btn p-2 bg-white border border-slate-200 rounded-lg text-center text-xs hover:border-blue-400 cursor-pointer font-bold";
+                        btn.innerText = val;
+                        btn.onclick = () => setScore(c.id, val);
+                        grid.appendChild(btn);
+                    }
+                });
+            });
+        }
+
+        function renderGroupSelectors() {
+            const grid = document.getElementById('groupSelectorGrid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= MAX_GROUPS; i++) {
+                const isActive = i === currentGroupIndex;
+                const btn = document.createElement('button');
+                btn.className = `p-2 text-xs font-bold rounded-xl border text-center transition-all cursor-pointer ${isActive ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'}`;
+                const groupLabel = systemData.groups[i]?.label || `Slot ${i}`;
+                btn.innerHTML = `<div class="text-[9px] uppercase tracking-tight opacity-75">G${i}</div><div class="truncate text-[11px] max-w-full">${groupLabel.replace('Group Slot ', '#')}</div>`;
+                btn.onclick = () => switchGroupContext(i);
+                grid.appendChild(btn);
+            }
+        }
+
+        function switchGroupContext(idx) {
+            currentGroupIndex = idx;
+            renderGroupSelectors();
+            const activeGroup = systemData.groups[currentGroupIndex];
+            document.getElementById('groupLabelInput').value = activeGroup.label;
+            renderStudentList();
+            loadStudentScoresheet(activeGroup.activeStudentId);
+            renderSummaryTable();
+        }
+
+        function updateGroupLabel() {
+            const activeGroup = systemData.groups[currentGroupIndex];
+            activeGroup.label = document.getElementById('groupLabelInput').value;
+            saveDataToStorage();
+            renderGroupSelectors();
+            renderSummaryTable();
+        }
+
+        function renderStudentList() {
+            const activeGroup = systemData.groups[currentGroupIndex];
+            const list = document.getElementById('studentList');
+            list.innerHTML = '';
+            document.getElementById('candidateCount').innerText = `${activeGroup.students.length} Candidate(s)`;
+
+            activeGroup.students.forEach(student => {
+                const isActive = student.id === activeGroup.activeStudentId;
+                const button = document.createElement('button');
+                button.className = `w-full text-left p-2.5 rounded-xl border font-medium text-xs flex items-center justify-between cursor-pointer ${isActive ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'}`;
+                button.onclick = () => selectStudent(student.id);
+                button.innerHTML = `<span class="truncate pr-2"><i class="fa-solid fa-user text-[10px] mr-1.5 ${isActive ? 'text-blue-200' : 'text-slate-400'}"></i>${student.name || 'Candidate'}</span><i class="fa-solid fa-angle-right text-[10px] opacity-60"></i>`;
+                list.appendChild(button);
+            });
+        }
+
+        function selectStudent(id) {
+            const activeGroup = systemData.groups[currentGroupIndex];
+            activeGroup.activeStudentId = id;
+            saveDataToStorage();
+            renderStudentList();
+            loadStudentScoresheet(id);
+        }
+
+        function addNewStudent() {
+            const activeGroup = systemData.groups[currentGroupIndex];
+            const newId = activeGroup.students.length > 0 ? Math.max(...activeGroup.students.map(s => s.id)) + 1 : 1;
+            const blankScores = {};
+            rubricConfig.tasks.forEach(t => t.criteria.forEach(c => blankScores[c.id] = 0));
+
+            activeGroup.students.push({ id: newId, name: `Candidate ${newId}`, matric: "", scores: blankScores });
+            activeGroup.activeStudentId = newId;
+            saveDataToStorage();
+            renderStudentList();
+            loadStudentScoresheet(newId);
+            renderSummaryTable();
+        }
+
+        function loadStudentScoresheet(id) {
+            const activeGroup = systemData.groups[currentGroupIndex];
+            let student = activeGroup.students.find(s => s.id === id) || activeGroup.students[0];
+            if (!student) return;
+
+            document.getElementById('currentStudentName').value = student.name;
+            document.getElementById('currentStudentMatric').value = student.matric;
+
+            updateAvatar(student);
+
+            rubricConfig.tasks.forEach(t => {
+                t.criteria.forEach(c => {
+                    highlightRubricButton(c.id, student.scores[c.id] || 0);
+                });
+            });
+
+            calculateTotals(student);
+        }
+
+        function updateAvatar(student) {
+            const card = document.getElementById('cardAvatar');
+            const matric = student.matric ? student.matric.trim() : "";
+            if (matric !== "") {
+                card.innerHTML = `<img src="https://siswa.unisza.edu.my/images/studentpic/${matric}.jpg" class="w-full h-full object-cover rounded-full" onerror="fallbackAvatar(this, '${student.name}')">`;
+            } else {
+                fallbackAvatar(null, student.name);
+            }
+        }
+
+        function fallbackAvatar(img, name) {
+            const container = img ? img.parentElement : document.getElementById('cardAvatar');
+            const initials = (name || 'C').split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
+            container.innerHTML = `<span class="text-2xl font-bold tracking-wider text-slate-400">${initials}</span>`;
+        }
+
+        function syncStudentIdentity() {
+            const activeGroup = systemData.groups[currentGroupIndex];
+            const student = activeGroup.students.find(s => s.id === activeGroup.activeStudentId);
+            if (!student) return;
+
+            student.name = document.getElementById('currentStudentName').value;
+            student.matric = document.getElementById('currentStudentMatric').value;
+
+            updateAvatar(student);
+            saveDataToStorage();
+            renderStudentList();
+            renderSummaryTable();
+        }
+
+        function setScore(critId, val) {
+            const activeGroup = systemData.groups[currentGroupIndex];
+            const student = activeGroup.students.find(s => s.id === activeGroup.activeStudentId);
+            if (!student) return;
+
+            student.scores[critId] = val;
+            highlightRubricButton(critId, val);
+            calculateTotals(student);
+            saveDataToStorage();
+            renderSummaryTable();
+        }
+
+        function highlightRubricButton(critId, score) {
+            const container = document.getElementById(`grid_${critId}`);
+            if (!container) return;
+            const buttons = container.getElementsByTagName('button');
+            for (let i = 0; i < buttons.length; i++) {
+                if ((i + 1) === score) {
+                    buttons[i].className = "rubric-btn p-2 bg-indigo-600 border border-indigo-600 rounded-lg text-center text-xs text-white font-bold transform scale-[1.02] shadow-xs cursor-pointer";
+                } else {
+                    buttons[i].className = "rubric-btn p-2 bg-white border border-slate-200 rounded-lg text-center text-xs hover:border-blue-400 text-slate-800 cursor-pointer font-bold";
+                }
+            }
+        }
+
+        function calculateTotals(student) {
+            const maxRaw = calculateMaxRaw();
+            let rawTotal = 0;
+            rubricConfig.tasks.forEach(t => {
+                t.criteria.forEach(c => {
+                    rawTotal += (student.scores[c.id] || 0);
+                });
+            });
+
+            const weight = rubricConfig.weight || 100;
+            const weightedScore = maxRaw > 0 && rawTotal > 0 ? ((rawTotal / maxRaw) * weight).toFixed(2) : "0.00";
+
+            document.getElementById('liveRaw').innerHTML = `${rawTotal} <span class="text-xs text-slate-500">/${maxRaw}</span>`;
+            document.getElementById('liveFinal').innerHTML = `${weightedScore}<span class="text-xs font-semibold">%</span>`;
+        }
+
+        function renderSummaryTable() {
+            const activeGroup = systemData.groups[currentGroupIndex];
+            const headerRow = document.getElementById('summaryTableHeader');
+            const tbody = document.getElementById('summaryTableBody');
+            const maxRaw = calculateMaxRaw();
+
+            headerRow.innerHTML = `<th class="p-3">Candidate Identity</th>`;
+            rubricConfig.tasks.forEach(t => {
+                headerRow.innerHTML += `<th class="p-3 text-center">${t.name}</th>`;
+            });
+            headerRow.innerHTML += `<th class="p-3 text-center">Total Raw (/${maxRaw})</th>`;
+            headerRow.innerHTML += `<th class="p-3 text-right">Final (${rubricConfig.weight}%)</th>`;
+
+            tbody.innerHTML = '';
+            if (!activeGroup || !activeGroup.students.length) {
+                tbody.innerHTML = `<tr><td colspan="${rubricConfig.tasks.length + 3}" class="p-4 text-center text-slate-400">No candidates found</td></tr>`;
+                return;
+            }
+
+            activeGroup.students.forEach(student => {
+                let rawTotal = 0;
+                let taskCells = '';
+
+                rubricConfig.tasks.forEach(t => {
+                    let taskSum = 0;
+                    const taskMax = t.criteria.reduce((sum, c) => sum + c.max, 0);
+                    t.criteria.forEach(c => {
+                        taskSum += (student.scores[c.id] || 0);
+                    });
+                    rawTotal += taskSum;
+                    taskCells += `<td class="p-3 text-center font-bold text-slate-700">${taskSum} <span class="text-[10px] text-slate-400">/${taskMax}</span></td>`;
+                });
+
+                const weight = rubricConfig.weight || 100;
+                const finalGrade = maxRaw > 0 && rawTotal > 0 ? ((rawTotal / maxRaw) * weight).toFixed(2) : "0.00";
+                const matric = student.matric ? student.matric.trim() : "";
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-50/80 transition-colors";
+                row.innerHTML = `
+                    <td class="p-3 flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex items-center justify-center font-bold text-[10px] shrink-0">
+                            ${matric !== "" ? `<img src="https://siswa.unisza.edu.my/images/studentpic/${matric}.jpg" class="w-full h-full object-cover">` : 'C'}
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-800">${student.name || 'Candidate'}</div>
+                            <div class="text-slate-400 text-[10px] font-mono">${student.matric || 'No Matric'}</div>
+                        </div>
+                    </td>
+                    ${taskCells}
+                    <td class="p-3 text-center bg-slate-50/50 font-bold text-slate-800">${rawTotal}</td>
+                    <td class="p-3 text-right text-sm text-indigo-900 font-black">${finalGrade}%</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function exportItemizedCSV() {
+            const examiner = systemData.examinerName || 'Not Specified';
+            const maxRaw = calculateMaxRaw();
+            let csv = "data:text/csv;charset=utf-8,";
+            csv += `${rubricConfig.courseTitle} - Master Export\r\nEvaluator: ${examiner}\r\n\r\n`;
+
+            // Dynamic header
+            let headers = ["Group Code", "Group Name", "Candidate Name", "Matric Number"];
+            rubricConfig.tasks.forEach(t => {
+                t.criteria.forEach(c => {
+                    headers.push(`"${t.name} - ${c.name} (/${c.max})"`);
+                });
+                headers.push(`"Total ${t.name}"`);
+            });
+            headers.push(`"Grand Total Raw (/${maxRaw})"`);
+            headers.push(`"Final Score (${rubricConfig.weight}%)"`);
+            csv += headers.join(",") + "\r\n";
+
+            for (let i = 1; i <= MAX_GROUPS; i++) {
+                const group = systemData.groups[i];
+                if (!group) continue;
+                group.students.forEach(s => {
+                    let row = [
+                        `G${i}`,
+                        `"${(group.label || '').replace(/"/g, '""')}"`,
+                        `"${(s.name || '').replace(/"/g, '""')}"`,
+                        `"${(s.matric || '').replace(/"/g, '""')}"`
+                    ];
+                    let grandRaw = 0;
+                    rubricConfig.tasks.forEach(t => {
+                        let tSum = 0;
+                        t.criteria.forEach(c => {
+                            const sc = s.scores[c.id] || 0;
+                            row.push(sc);
+                            tSum += sc;
+                        });
+                        row.push(tSum);
+                        grandRaw += tSum;
+                    });
+                    row.push(grandRaw);
+                    const finalWeighted = maxRaw > 0 ? ((grandRaw / maxRaw) * rubricConfig.weight).toFixed(2) : "0.00";
+                    row.push(`${finalWeighted}%`);
+                    csv += row.join(",") + "\r\n";
+                });
+            }
+
+            const encodedUri = encodeURI(csv);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Master_Assessment_${rubricConfig.courseTitle.replace(/\s+/g, '_')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        window.addEventListener('DOMContentLoaded', initEngine);
+    </script>
+</body>
+</html>
