@@ -9,34 +9,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; }
-        .rubric-btn { transition: all 0.15s ease; }
+        .rubric-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col justify-between">
     <div>
-        <!-- Dynamic Header -->
+        <!-- Top Header Bar -->
         <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-xl px-6 py-6 relative">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
-                    <span id="headerTag" class="bg-blue-500/30 text-blue-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Assessment Engine</span>
+                    <span id="courseCodeTag" class="bg-blue-500/30 text-blue-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider font-mono">BI201</span>
                     <h1 id="headerTitle" class="text-2xl font-black mt-1 tracking-tight">Speaking Assessment Engine</h1>
                     <p class="text-blue-100 text-xs mt-1"><i class="fa-solid fa-camera mr-1 text-amber-400"></i>Matric-Synced Profile Photos</p>
                 </div>
                 
                 <div class="flex items-center gap-3">
-                    <a href="setup.html" class="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-xl border border-white/20 flex items-center gap-1.5 transition-colors">
-                        <i class="fa-solid fa-sliders"></i> Modify Rubric
+                    <a href="index.html" class="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-xl border border-white/20 flex items-center gap-1.5 transition-colors">
+                        <i class="fa-solid fa-list-ul"></i> All Schemes
                     </a>
+                    <button onclick="editCurrentRubric()" class="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-xl border border-white/20 flex items-center gap-1.5 transition-colors cursor-pointer">
+                        <i class="fa-solid fa-sliders"></i> Modify Rubric
+                    </button>
                     <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20">
-                        <label class="block text-[10px] font-semibold text-blue-200 uppercase tracking-wider">Evaluator Name</label>
-                        <input type="text" id="examinerName" placeholder="Dr. / Mr. / Ms." oninput="saveDataToStorage()" class="bg-white text-slate-800 text-sm font-medium px-3 py-1 rounded-lg border-none focus:outline-2 focus:outline-amber-400 w-48 mt-0.5">
+                        <label class="block text-[10px] font-semibold text-blue-200 uppercase tracking-wider">Evaluator</label>
+                        <input type="text" id="examinerName" placeholder="Dr. / Mr. / Ms." oninput="saveDataToStorage()" class="bg-white text-slate-800 text-sm font-medium px-3 py-1 rounded-lg border-none focus:outline-2 focus:outline-amber-400 w-44 mt-0.5">
                     </div>
                 </div>
             </div>
         </header>
 
         <main class="max-w-7xl mx-auto px-4 py-6">
-            <!-- Group Selector Bar -->
+            <!-- Group Selector Tabs -->
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/60 mb-6 flex flex-col gap-3">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wide flex items-center gap-2">
@@ -53,13 +56,13 @@
                         <input type="text" id="groupLabelInput" oninput="updateGroupLabel()" class="bg-white border border-slate-200 rounded-lg px-3 py-1 text-sm font-semibold text-slate-700 focus:outline-indigo-500 w-full sm:w-48">
                     </div>
                     <div class="text-xs text-slate-500">
-                        <i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> <strong>Candidates' photo will be loaded automatically. Only matric ID is needed.</strong> Data is stored in browser storage.
+                        <i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> <strong>Candidate photos load automatically via Matric ID.</strong>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-6">
-                <!-- Candidate List Sidebar -->
+                <!-- Sidebar Candidates -->
                 <div class="md:col-span-1 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/60 flex flex-col justify-between min-h-[300px]">
                     <div>
                         <h3 class="font-bold text-sm text-slate-700 mb-3 flex items-center justify-between">
@@ -73,9 +76,9 @@
                     </button>
                 </div>
 
-                <!-- Scoring Panel -->
+                <!-- Dynamic Scoring & Rubrics Center -->
                 <div class="md:col-span-3 lg:col-span-4 bg-white rounded-2xl p-6 shadow-sm border border-slate-200/60 relative">
-                    <!-- Current Candidate Header Card -->
+                    <!-- Candidate Status Display Card -->
                     <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-2xl p-6 mb-6 flex flex-col lg:flex-row justify-between items-center gap-6 shadow-xl border border-slate-700">
                         <div class="flex flex-col sm:flex-row items-center gap-6 w-full lg:w-auto text-center sm:text-left">
                             <div class="w-28 h-28 rounded-full bg-slate-700 border-4 border-amber-400 shadow-lg flex items-center justify-center text-2xl font-bold overflow-hidden shrink-0" id="cardAvatar">
@@ -95,28 +98,26 @@
                         
                         <div class="flex gap-6 items-center justify-around bg-slate-950/50 px-6 py-4 rounded-2xl border border-slate-800 w-full lg:w-auto shrink-0">
                             <div class="text-center px-2">
-                                <span class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-1">Raw Score</span>
+                                <span class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-1">Raw Total</span>
                                 <span class="text-2xl font-bold text-slate-200" id="liveRaw">0 <span class="text-sm text-slate-500" id="maxRawLabel">/0</span></span>
                             </div>
                             <div class="w-px h-12 bg-slate-800"></div>
                             <div class="text-center px-2">
-                                <span class="block text-[10px] text-amber-400 uppercase tracking-wider font-bold mb-1" id="weightedFinalLabel">Final Grade (0%)</span>
+                                <span class="block text-[10px] text-amber-400 uppercase tracking-wider font-bold mb-1" id="weightedFinalLabel">Final Grade</span>
                                 <span class="text-3xl font-black text-amber-400" id="liveFinal">0.00<span class="text-lg font-bold">%</span></span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Dynamically Injected Rubrics Container -->
+                    <!-- Dynamically Rendered Tasks with Descriptors -->
                     <div id="rubricsContainer" class="space-y-6"></div>
                 </div>
             </div>
 
-            <!-- Group Dashboard Summary -->
+            <!-- Group Breakdown Table -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/60">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
-                    <div>
-                        <h2 class="text-base font-bold text-slate-800"><i class="fa-solid fa-table-list text-indigo-600 mr-2"></i>Active Group Summary</h2>
-                    </div>
+                    <h2 class="text-base font-bold text-slate-800"><i class="fa-solid fa-table-list text-indigo-600 mr-2"></i>Active Group Summary</h2>
                     <button onclick="exportItemizedCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-4 rounded-xl transition-colors flex items-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-file-excel"></i> Export Detailed Spreadsheet (.csv)
                     </button>
@@ -134,53 +135,36 @@
     </div>
 
     <script>
+        const REGISTRY_KEY = 'UniSZA_Assessment_Registry_V1';
+        const ACTIVE_ID_KEY = 'UniSZA_Active_Assessment_ID';
         const MAX_GROUPS = 10;
-        let rubricConfig = null;
+
+        let activeProfile = null;
         let systemData = { examinerName: "", groups: {} };
         let currentGroupIndex = 1;
 
-        function loadRubricConfig() {
-            const saved = localStorage.getItem('Dynamic_Assessment_Rubric_Config');
-            if (!saved) {
-                // If not set up yet, redirect to setup landing page
-                window.location.href = "setup.html";
-                return false;
-            }
-            rubricConfig = JSON.parse(saved);
-            document.getElementById('headerTitle').innerText = rubricConfig.courseTitle || "Assessment Engine";
-            document.getElementById('weightedFinalLabel').innerText = `Weighted (${rubricConfig.weight || 100}%)`;
-            return true;
-        }
-
-        function calculateMaxRaw() {
-            let total = 0;
-            rubricConfig.tasks.forEach(t => t.criteria.forEach(c => total += c.max));
-            return total;
-        }
-
-        function createBlankGroup(index) {
-            const initialScores = {};
-            rubricConfig.tasks.forEach(t => t.criteria.forEach(c => initialScores[c.id] = 0));
-
-            return {
-                label: `Group Slot ${index}`,
-                students: [
-                    { id: 1, name: "Candidate 1", matric: "", scores: { ...initialScores } },
-                    { id: 2, name: "Candidate 2", matric: "", scores: { ...initialScores } },
-                    { id: 3, name: "Candidate 3", matric: "", scores: { ...initialScores } },
-                    { id: 4, name: "Candidate 4", matric: "", scores: { ...initialScores } }
-                ],
-                activeStudentId: 1
-            };
-        }
-
         function initEngine() {
-            if (!loadRubricConfig()) return;
+            const activeId = localStorage.getItem(ACTIVE_ID_KEY);
+            const savedRegistry = localStorage.getItem(REGISTRY_KEY);
+            if (!activeId || !savedRegistry) {
+                window.location.href = "index.html";
+                return;
+            }
 
+            const registry = JSON.parse(savedRegistry);
+            activeProfile = registry[activeId];
+            if (!activeProfile) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            document.getElementById('courseCodeTag').innerText = activeProfile.courseCode || "COURSE";
+            document.getElementById('headerTitle').innerText = activeProfile.courseFullName || activeProfile.courseTitle;
+            document.getElementById('weightedFinalLabel').innerText = `Final (${activeProfile.weight}%)`;
             document.getElementById('maxRawLabel').innerText = `/${calculateMaxRaw()}`;
 
-            const storageKey = `Dynamic_Assessment_Data_${rubricConfig.courseTitle.replace(/\s+/g, '_')}`;
-            const savedData = localStorage.getItem(storageKey);
+            const dataKey = `UniSZA_Data_${activeProfile.id}`;
+            const savedData = localStorage.getItem(dataKey);
             if (savedData) {
                 try { systemData = JSON.parse(savedData); } catch (e) { resetBlankData(); }
             } else { resetBlankData(); }
@@ -195,19 +179,44 @@
             switchGroupContext(1);
         }
 
+        function calculateMaxRaw() {
+            let total = 0;
+            activeProfile.tasks.forEach(t => t.criteria.forEach(c => total += c.max));
+            return total;
+        }
+
+        function createBlankGroup(index) {
+            const blankScores = {};
+            activeProfile.tasks.forEach(t => t.criteria.forEach(c => blankScores[c.id] = 0));
+
+            return {
+                label: `Group Slot ${index}`,
+                students: [
+                    { id: 1, name: "Candidate 1", matric: "", scores: { ...blankScores } },
+                    { id: 2, name: "Candidate 2", matric: "", scores: { ...blankScores } },
+                    { id: 3, name: "Candidate 3", matric: "", scores: { ...blankScores } },
+                    { id: 4, name: "Candidate 4", matric: "", scores: { ...blankScores } }
+                ],
+                activeStudentId: 1
+            };
+        }
+
         function resetBlankData() { systemData = { examinerName: "", groups: {} }; }
 
         function saveDataToStorage() {
             systemData.examinerName = document.getElementById('examinerName').value;
-            const storageKey = `Dynamic_Assessment_Data_${rubricConfig.courseTitle.replace(/\s+/g, '_')}`;
-            localStorage.setItem(storageKey, JSON.stringify(systemData));
+            localStorage.setItem(`UniSZA_Data_${activeProfile.id}`, JSON.stringify(systemData));
+        }
+
+        function editCurrentRubric() {
+            window.location.href = `index.html?edit_id=${activeProfile.id}`;
         }
 
         function renderRubricEngine() {
             const container = document.getElementById('rubricsContainer');
             container.innerHTML = '';
 
-            rubricConfig.tasks.forEach((task, tIdx) => {
+            activeProfile.tasks.forEach((task, tIdx) => {
                 const taskMax = task.criteria.reduce((sum, c) => sum + c.max, 0);
                 const taskDiv = document.createElement('div');
                 taskDiv.className = "bg-slate-50 rounded-xl p-4 border border-slate-200/50";
@@ -225,18 +234,23 @@
                 const critList = taskDiv.querySelector(`#task_crit_list_${tIdx}`);
                 task.criteria.forEach(c => {
                     const cRow = document.createElement('div');
+                    const gridColsClass = c.max <= 5 ? `grid-cols-${c.max}` : `grid-cols-5`;
                     cRow.innerHTML = `
                         <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">${c.name} (Max ${c.max})</label>
-                        <div class="grid grid-cols-${Math.min(c.max, 10)} gap-1.5" id="grid_${c.id}"></div>
+                        <div class="grid ${gridColsClass} gap-1.5" id="grid_${c.id}"></div>
                     `;
                     critList.appendChild(cRow);
 
                     const grid = cRow.querySelector(`#grid_${c.id}`);
                     for (let val = 1; val <= c.max; val++) {
+                        const descriptorText = (c.descriptors && c.descriptors[val]) ? c.descriptors[val] : "";
                         const btn = document.createElement('button');
-                        btn.className = "rubric-btn p-2 bg-white border border-slate-200 rounded-lg text-center text-xs hover:border-blue-400 cursor-pointer font-bold";
-                        btn.innerText = val;
+                        btn.className = "rubric-btn p-2 bg-white border border-slate-200 rounded-lg text-center text-xs hover:border-blue-400 cursor-pointer";
                         btn.onclick = () => setScore(c.id, val);
+                        btn.innerHTML = `
+                            <b class="text-slate-800">${val}</b>
+                            ${descriptorText ? `<span class="block text-[9px] text-slate-400 line-clamp-1 mt-0.5">${descriptorText}</span>` : ''}
+                        `;
                         grid.appendChild(btn);
                     }
                 });
@@ -303,7 +317,7 @@
             const activeGroup = systemData.groups[currentGroupIndex];
             const newId = activeGroup.students.length > 0 ? Math.max(...activeGroup.students.map(s => s.id)) + 1 : 1;
             const blankScores = {};
-            rubricConfig.tasks.forEach(t => t.criteria.forEach(c => blankScores[c.id] = 0));
+            activeProfile.tasks.forEach(t => t.criteria.forEach(c => blankScores[c.id] = 0));
 
             activeGroup.students.push({ id: newId, name: `Candidate ${newId}`, matric: "", scores: blankScores });
             activeGroup.activeStudentId = newId;
@@ -323,7 +337,7 @@
 
             updateAvatar(student);
 
-            rubricConfig.tasks.forEach(t => {
+            activeProfile.tasks.forEach(t => {
                 t.criteria.forEach(c => {
                     highlightRubricButton(c.id, student.scores[c.id] || 0);
                 });
@@ -379,10 +393,18 @@
             if (!container) return;
             const buttons = container.getElementsByTagName('button');
             for (let i = 0; i < buttons.length; i++) {
+                const btn = buttons[i];
+                const textSpan = btn.querySelector('span');
+                const bTag = btn.querySelector('b');
+
                 if ((i + 1) === score) {
-                    buttons[i].className = "rubric-btn p-2 bg-indigo-600 border border-indigo-600 rounded-lg text-center text-xs text-white font-bold transform scale-[1.02] shadow-xs cursor-pointer";
+                    btn.className = "rubric-btn p-2 bg-indigo-600 border border-indigo-600 rounded-lg text-center text-xs text-white font-bold transform scale-[1.01] shadow-xs cursor-pointer";
+                    if (bTag) bTag.className = "text-white";
+                    if (textSpan) textSpan.className = "block text-[9px] text-indigo-100 line-clamp-1 mt-0.5";
                 } else {
-                    buttons[i].className = "rubric-btn p-2 bg-white border border-slate-200 rounded-lg text-center text-xs hover:border-blue-400 text-slate-800 cursor-pointer font-bold";
+                    btn.className = "rubric-btn p-2 bg-white border border-slate-200 rounded-lg text-center text-xs hover:border-blue-400 text-slate-800 cursor-pointer";
+                    if (bTag) bTag.className = "text-slate-800";
+                    if (textSpan) textSpan.className = "block text-[9px] text-slate-400 line-clamp-1 mt-0.5";
                 }
             }
         }
@@ -390,13 +412,13 @@
         function calculateTotals(student) {
             const maxRaw = calculateMaxRaw();
             let rawTotal = 0;
-            rubricConfig.tasks.forEach(t => {
+            activeProfile.tasks.forEach(t => {
                 t.criteria.forEach(c => {
                     rawTotal += (student.scores[c.id] || 0);
                 });
             });
 
-            const weight = rubricConfig.weight || 100;
+            const weight = activeProfile.weight || 100;
             const weightedScore = maxRaw > 0 && rawTotal > 0 ? ((rawTotal / maxRaw) * weight).toFixed(2) : "0.00";
 
             document.getElementById('liveRaw').innerHTML = `${rawTotal} <span class="text-xs text-slate-500">/${maxRaw}</span>`;
@@ -410,15 +432,15 @@
             const maxRaw = calculateMaxRaw();
 
             headerRow.innerHTML = `<th class="p-3">Candidate Identity</th>`;
-            rubricConfig.tasks.forEach(t => {
+            activeProfile.tasks.forEach(t => {
                 headerRow.innerHTML += `<th class="p-3 text-center">${t.name}</th>`;
             });
             headerRow.innerHTML += `<th class="p-3 text-center">Total Raw (/${maxRaw})</th>`;
-            headerRow.innerHTML += `<th class="p-3 text-right">Final (${rubricConfig.weight}%)</th>`;
+            headerRow.innerHTML += `<th class="p-3 text-right">Final (${activeProfile.weight}%)</th>`;
 
             tbody.innerHTML = '';
             if (!activeGroup || !activeGroup.students.length) {
-                tbody.innerHTML = `<tr><td colspan="${rubricConfig.tasks.length + 3}" class="p-4 text-center text-slate-400">No candidates found</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${activeProfile.tasks.length + 3}" class="p-4 text-center text-slate-400">No candidates found</td></tr>`;
                 return;
             }
 
@@ -426,7 +448,7 @@
                 let rawTotal = 0;
                 let taskCells = '';
 
-                rubricConfig.tasks.forEach(t => {
+                activeProfile.tasks.forEach(t => {
                     let taskSum = 0;
                     const taskMax = t.criteria.reduce((sum, c) => sum + c.max, 0);
                     t.criteria.forEach(c => {
@@ -436,7 +458,7 @@
                     taskCells += `<td class="p-3 text-center font-bold text-slate-700">${taskSum} <span class="text-[10px] text-slate-400">/${taskMax}</span></td>`;
                 });
 
-                const weight = rubricConfig.weight || 100;
+                const weight = activeProfile.weight || 100;
                 const finalGrade = maxRaw > 0 && rawTotal > 0 ? ((rawTotal / maxRaw) * weight).toFixed(2) : "0.00";
                 const matric = student.matric ? student.matric.trim() : "";
 
@@ -464,18 +486,17 @@
             const examiner = systemData.examinerName || 'Not Specified';
             const maxRaw = calculateMaxRaw();
             let csv = "data:text/csv;charset=utf-8,";
-            csv += `${rubricConfig.courseTitle} - Master Export\r\nEvaluator: ${examiner}\r\n\r\n`;
+            csv += `${activeProfile.courseCode} - ${activeProfile.courseFullName} - Master Export\r\nEvaluator: ${examiner}\r\n\r\n`;
 
-            // Dynamic header
             let headers = ["Group Code", "Group Name", "Candidate Name", "Matric Number"];
-            rubricConfig.tasks.forEach(t => {
+            activeProfile.tasks.forEach(t => {
                 t.criteria.forEach(c => {
                     headers.push(`"${t.name} - ${c.name} (/${c.max})"`);
                 });
                 headers.push(`"Total ${t.name}"`);
             });
             headers.push(`"Grand Total Raw (/${maxRaw})"`);
-            headers.push(`"Final Score (${rubricConfig.weight}%)"`);
+            headers.push(`"Final Score (${activeProfile.weight}%)"`);
             csv += headers.join(",") + "\r\n";
 
             for (let i = 1; i <= MAX_GROUPS; i++) {
@@ -489,7 +510,7 @@
                         `"${(s.matric || '').replace(/"/g, '""')}"`
                     ];
                     let grandRaw = 0;
-                    rubricConfig.tasks.forEach(t => {
+                    activeProfile.tasks.forEach(t => {
                         let tSum = 0;
                         t.criteria.forEach(c => {
                             const sc = s.scores[c.id] || 0;
@@ -500,7 +521,7 @@
                         grandRaw += tSum;
                     });
                     row.push(grandRaw);
-                    const finalWeighted = maxRaw > 0 ? ((grandRaw / maxRaw) * rubricConfig.weight).toFixed(2) : "0.00";
+                    const finalWeighted = maxRaw > 0 ? ((grandRaw / maxRaw) * activeProfile.weight).toFixed(2) : "0.00";
                     row.push(`${finalWeighted}%`);
                     csv += row.join(",") + "\r\n";
                 });
@@ -509,7 +530,7 @@
             const encodedUri = encodeURI(csv);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Master_Assessment_${rubricConfig.courseTitle.replace(/\s+/g, '_')}.csv`);
+            link.setAttribute("download", `Master_Assessment_${activeProfile.courseCode}_${(activeProfile.courseFullName || '').replace(/\s+/g, '_')}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
