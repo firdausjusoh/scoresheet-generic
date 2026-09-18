@@ -12,46 +12,28 @@
 <body class="min-h-screen text-slate-800 p-6 flex flex-col justify-between bg-slate-100 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px]">
 
     <div class="max-w-5xl mx-auto w-full">
-        <!-- Upgraded Institutional Header Banner with Logo and Depth Texture -->
-        <header class="relative overflow-hidden bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-2xl mb-6 border border-white/10">
-            <!-- Background Radial Glow & Texture Mesh Overlay -->
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent pointer-events-none"></div>
-            <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
-            
+        <!-- Upgraded Header Banner with Custom banner-bg.jpg Background -->
+        <header 
+            class="relative overflow-hidden bg-slate-900 bg-cover bg-center text-white rounded-3xl p-6 sm:p-8 shadow-2xl mb-6 border border-white/10"
+            style="background-image: linear-gradient(to right, rgba(15, 23, 42, 0.90) 0%, rgba(30, 27, 75, 0.75) 50%, rgba(15, 23, 42, 0.60) 100%), url('banner-bg.jpg');"
+        >
             <div class="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-                <!-- Branding: University / Department Emblem + Typography -->
-                <div class="flex items-center gap-5">
-                    <!-- Logo Container with Fallback Icon -->
-                    <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 backdrop-blur-md p-2 flex items-center justify-center border border-white/20 shadow-inner shrink-0 group">
-                        <!-- Replace src with your official UniSZA crest PNG/SVG if preferred -->
-                        <img 
-                            src="https://www.unisza.edu.my/wp-content/uploads/2021/04/logo_left-1024x385.png" 
-                            alt="University Logo" 
-                            class="w-full h-full object-contain filter drop-shadow" 
-                            onerror="this.style.display='none'; document.getElementById('logoFallback').classList.remove('hidden');"
-                        >
-                        <div id="logoFallback" class="hidden text-amber-400 text-2xl sm:text-3xl">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                        </div>
+                <!-- Branding Typography -->
+                <div>
+                    <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span class="bg-blue-500/20 text-blue-200 text-[10px] font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider border border-blue-400/30 backdrop-blur-xs">
+                            Universiti Sultan Zainal Abidin
+                        </span>
+                        <span class="bg-amber-400/20 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-300/30">
+                            <i class="fa-solid fa-cube text-[8px] mr-1"></i>Rubric Engine V3
+                        </span>
                     </div>
-
-                    <!-- Header Text -->
-                    <div>
-                        <div class="flex flex-wrap items-center gap-2 mb-1">
-                            <span class="bg-blue-500/20 text-blue-200 text-[10px] font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider border border-blue-400/30 backdrop-blur-xs">
-                                Universiti Sultan Zainal Abidin
-                            </span>
-                            <span class="bg-amber-400/20 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-300/30">
-                                <i class="fa-solid fa-cube text-[8px] mr-1"></i>Rubric Engine V3
-                            </span>
-                        </div>
-                        <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs">
-                            Course Assessment & Rubric Hub
-                        </h1>
-                        <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-xl font-light leading-relaxed">
-                            Modular evaluation schemes with dynamic bands, automated weighting, and real-time student directory sync.
-                        </p>
-                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs">
+                        Course Assessment & Rubric Hub
+                    </h1>
+                    <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-xl font-light leading-relaxed">
+                        Modular evaluation schemes with dynamic bands, automated weighting, and real-time student directory sync.
+                    </p>
                 </div>
 
                 <!-- Banner Action Button -->
@@ -63,7 +45,6 @@
                 </div>
             </div>
         </header>
-
         <!-- Existing Schemes List -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 mb-6">
             <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
