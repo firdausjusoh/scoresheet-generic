@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assessment Manager & Rubric Hub</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- SheetJS for reading Excel (.xlsx, .xls) and CSV rubric files directly in browser -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Poppins', sans-serif; }</style>
@@ -18,7 +20,6 @@
             style="background-image: linear-gradient(to right, rgba(15, 23, 42, 0.90) 0%, rgba(30, 27, 75, 0.75) 50%, rgba(15, 23, 42, 0.60) 100%), url('banner-bg.jpg');"
         >
             <div class="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-                <!-- Branding Typography -->
                 <div>
                     <div class="flex flex-wrap items-center gap-2 mb-1.5">
                         <span class="bg-blue-500/20 text-blue-200 text-[10px] font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider border border-blue-400/30 backdrop-blur-xs">
@@ -36,24 +37,34 @@
                     </p>
                 </div>
 
-                <!-- Banner Action Button -->
-                <div class="w-full lg:w-auto flex sm:justify-end shrink-0">
-                    <button onclick="showCreateModal()" class="w-full sm:w-auto bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 px-5 py-3 rounded-2xl text-xs font-black shadow-lg shadow-amber-500/20 cursor-pointer transition-all hover:scale-[1.02] flex items-center justify-center gap-2.5">
+                <!-- Banner Action Buttons -->
+                <div class="w-full lg:w-auto flex flex-wrap sm:justify-end gap-2.5 shrink-0">
+                    <button onclick="openImportModal()" class="bg-white/15 hover:bg-white/25 text-white border border-white/25 backdrop-blur-md px-4 py-3 rounded-2xl text-xs font-bold shadow-lg cursor-pointer transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-file-excel text-emerald-400 text-sm"></i>
+                        <span>Import Rubric (.xlsx)</span>
+                    </button>
+                    <button onclick="showCreateModal()" class="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 px-5 py-3 rounded-2xl text-xs font-black shadow-lg shadow-amber-500/20 cursor-pointer transition-all hover:scale-[1.02] flex items-center justify-center gap-2">
                         <i class="fa-solid fa-plus-circle text-sm"></i>
                         <span>Create New Scheme</span>
                     </button>
                 </div>
             </div>
         </header>
+
         <!-- Existing Schemes List -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 mb-6">
-            <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-folder-open text-indigo-600"></i> Saved Course Schemes
-            </h2>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-folder-open text-indigo-600"></i> Saved Course & Class Schemes
+                </h2>
+                <span class="text-[11px] text-slate-400">
+                    <i class="fa-solid fa-copy mr-1 text-indigo-500"></i> Tip: Duplicate a scheme for each class section (each holds up to 10 groups)
+                </span>
+            </div>
             <div id="scoresheetsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             <div id="emptyNotice" class="hidden text-center py-12 text-slate-400">
                 <i class="fa-solid fa-clipboard-list text-4xl mb-3 text-slate-300"></i>
-                <p class="text-sm">No schemes saved yet. Choose a preset or create one below.</p>
+                <p class="text-sm">No schemes saved yet. Import an Excel rubric or create one below.</p>
             </div>
         </div>
 
@@ -74,17 +85,17 @@
                     <i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Quick Fill Course Presets:
                 </span>
                 <div class="flex flex-wrap gap-2">
-                    <button type="button" onclick="applyCoursePreset('BI201', 'English Proficiency 3: Speaking Assessment', 40)" class="bg-white hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-xs">
-                        EP3 (English Proficiency 3)
+                    <button type="button" onclick="applyCoursePreset('PBC12002', 'English Proficiency 3: Speaking Assessment', 40)" class="bg-white hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-xs">
+                        PBC12002 (EP3)
                     </button>
-                    <button type="button" onclick="applyCoursePreset('MKT2013', 'Principles of Marketing: Pitch Defense', 30)" class="bg-white hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-xs">
-                        Marketing Pitch Defense
+                    <button type="button" onclick="applyCoursePreset('PDC12402', 'English Competency 3: Speaking Assessment', 40)" class="bg-white hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-xs">
+                        PDC12402 (EC3)
                     </button>
-                    <button type="button" onclick="applyCoursePreset('BI102', 'English for Academic Purposes: Oral Presentation', 30)" class="bg-white hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-xs">
-                        EAP Oral Presentation
+                    <button type="button" onclick="applyCoursePreset('PBC11802', 'English Proficiency 1: Oral Presentation', 30)" class="bg-white hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-xs">
+                        PBC11802 (EP1)
                     </button>
-                    <button type="button" onclick="applyCoursePreset('FYP401', 'Final Year Project: Viva Voce Defense', 50)" class="bg-white hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-xs">
-                        FYP / Viva Voce
+                    <button type="button" onclick="applyCoursePreset('PDC12202', 'English Competency 1: Oral Assessment', 30)" class="bg-white hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-xs">
+                        PDC12202 (EC1)
                     </button>
                 </div>
             </div>
@@ -93,11 +104,11 @@
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
                 <div>
                     <label class="block text-xs font-bold text-slate-500 mb-1">Course Code</label>
-                    <input type="text" id="courseCode" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-mono font-bold uppercase focus:outline-indigo-500" placeholder="e.g. BI201">
+                    <input type="text" id="courseCode" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-mono font-bold uppercase focus:outline-indigo-500" placeholder="e.g. PBC12002">
                 </div>
                 <div class="sm:col-span-2">
-                    <label class="block text-xs font-bold text-slate-500 mb-1">Course Full Name / Assessment Title</label>
-                    <input type="text" id="courseFullName" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-indigo-500" placeholder="e.g. English Proficiency 3: Speaking Assessment">
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Course Full Name / Class Section</label>
+                    <input type="text" id="courseFullName" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-indigo-500" placeholder="e.g. EP3 Speaking - Group A (Sec 54820)">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 mb-1">Total Weight (%)</label>
@@ -119,7 +130,7 @@
             <!-- Editor Action Buttons -->
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-slate-100">
                 <button onclick="loadEP3FullPreset()" class="text-xs text-slate-500 hover:text-slate-800 font-semibold cursor-pointer">
-                    <i class="fa-solid fa-rotate-left mr-1"></i> Reset to Full EP3 Rubric (with descriptors)
+                    <i class="fa-solid fa-rotate-left mr-1"></i> Reset to Full EP3 Rubric
                 </button>
                 <div class="flex gap-2 w-full sm:w-auto">
                     <button onclick="hideEditor()" class="w-1/2 sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer">
@@ -133,11 +144,53 @@
         </div>
     </div>
 
+    <!-- Excel Rubric Import Modal -->
+    <div id="importModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-file-excel text-emerald-600"></i> Import Rubric from Excel
+                </h3>
+                <button onclick="closeImportModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                Upload an Excel (<code>.xlsx</code>, <code>.xls</code>) or <code>.csv</code> file containing your tasks, criteria, max marks, and band descriptors. The scoresheet will be generated automatically.
+            </p>
+
+            <!-- Download Sample Template -->
+            <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4 mb-4 flex items-center justify-between gap-3">
+                <div>
+                    <div class="text-xs font-bold text-indigo-950">Need the Excel format?</div>
+                    <div class="text-[11px] text-indigo-700">Download a ready-to-edit Excel template pre-filled with sample columns.</div>
+                </div>
+                <button onclick="downloadSampleExcelTemplate()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl shrink-0 cursor-pointer transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-download"></i> Template
+                </button>
+            </div>
+
+            <!-- File Drop / Select -->
+            <label class="block border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50 hover:bg-emerald-50/30 rounded-2xl p-6 text-center cursor-pointer transition-colors mb-4">
+                <i class="fa-solid fa-cloud-arrow-up text-3xl text-emerald-600 mb-2"></i>
+                <div class="text-xs font-bold text-slate-700">Click to choose Excel / CSV rubric file</div>
+                <div class="text-[11px] text-slate-400 mt-1">Columns: Course Code, Course Name, Weight, Task, Criterion, Max Score, Band 1, Band 2, Band 3...</div>
+                <input type="file" id="excelRubricInput" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleExcelRubricUpload(event)">
+            </label>
+
+            <div class="flex justify-end">
+                <button onclick="closeImportModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl cursor-pointer">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const REGISTRY_KEY = 'UniSZA_Assessment_Registry_V1';
         const ACTIVE_ID_KEY = 'UniSZA_Active_Assessment_ID';
 
-        // Full default EP3 scheme including original band descriptors
         const DEFAULT_EP3_SCHEMA = {
             courseCode: "PBC12002",
             courseFullName: "English Proficiency 3: Interactive Speaking Assessment",
@@ -308,10 +361,13 @@
                         <button onclick="launchScoresheet('${id}')" class="grow bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Scoresheet
                         </button>
-                        <button onclick="editProfile('${id}')" title="Edit Scheme" class="p-2 text-slate-500 hover:text-indigo-600 bg-white border border-slate-200 rounded-xl cursor-pointer">
+                        <button onclick="duplicateProfile('${id}')" title="Duplicate Scheme for Another Class" class="p-2 text-slate-600 hover:text-emerald-600 hover:border-emerald-300 bg-white border border-slate-200 rounded-xl cursor-pointer transition-colors">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                        <button onclick="editProfile('${id}')" title="Edit Scheme" class="p-2 text-slate-500 hover:text-indigo-600 hover:border-indigo-300 bg-white border border-slate-200 rounded-xl cursor-pointer transition-colors">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </button>
-                        <button onclick="deleteProfile('${id}')" title="Delete Scheme" class="p-2 text-slate-400 hover:text-rose-600 bg-white border border-slate-200 rounded-xl cursor-pointer">
+                        <button onclick="deleteProfile('${id}')" title="Delete Scheme" class="p-2 text-slate-400 hover:text-rose-600 hover:border-rose-300 bg-white border border-slate-200 rounded-xl cursor-pointer transition-colors">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
@@ -320,6 +376,176 @@
             });
         }
 
+        // --- DUPLICATE SCHEME FOR MULTIPLE CLASSES ---
+        function duplicateProfile(sourceId) {
+            const source = registry[sourceId];
+            if (!source) return;
+
+            const defaultNewName = `${source.courseFullName || source.courseTitle} (Class Copy)`;
+            const customLabel = prompt("Enter a title/class label for the duplicated scoresheet:", defaultNewName);
+            if (customLabel === null) return; // User clicked Cancel
+
+            const newId = "scheme_" + Date.now();
+            const clonedScheme = JSON.parse(JSON.stringify(source));
+            clonedScheme.id = newId;
+            clonedScheme.courseFullName = customLabel.trim() || defaultNewName;
+
+            registry[newId] = clonedScheme;
+            saveRegistry();
+            renderDashboard();
+        }
+
+        // --- EXCEL RUBRIC IMPORTER ---
+        function openImportModal() {
+            document.getElementById('excelRubricInput').value = '';
+            document.getElementById('importModal').classList.remove('hidden');
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').classList.add('hidden');
+        }
+
+        function downloadSampleExcelTemplate() {
+            const sampleRows = [
+                {
+                    "Course Code": "PBC12002",
+                    "Course Name": "English Proficiency 3: Speaking Assessment",
+                    "Weight (%)": 40,
+                    "Task Name": "TASK A: Individual Speech",
+                    "Criterion": "Task Fulfillment",
+                    "Max Score": 5,
+                    "Band 1": "Addresses the task adequately in a simple manner. Content is partially relevant.",
+                    "Band 2": "Addresses the task adequately with some development. Content is mostly relevant.",
+                    "Band 3": "Addresses the task satisfactorily with somewhat substantive ideas.",
+                    "Band 4": "Addresses the task effectively with good development and substantive ideas.",
+                    "Band 5": "Addresses the task effectively with excellent development and sophistication."
+                },
+                {
+                    "Course Code": "PBC12002",
+                    "Course Name": "English Proficiency 3: Speaking Assessment",
+                    "Weight (%)": 40,
+                    "Task Name": "TASK A: Individual Speech",
+                    "Criterion": "Discourse Management",
+                    "Max Score": 5,
+                    "Band 1": "Produces responses extended beyond short phrases despite hesitation.",
+                    "Band 2": "Produces satisfactory stretches beyond short phrases. Uses general cohesive devices.",
+                    "Band 3": "Produces extended stretches of language despite some hesitation.",
+                    "Band 4": "Produces extended stretches with very little hesitation and good discourse markers.",
+                    "Band 5": "Produces extended stretches with no hesitation and wide range of cohesive devices."
+                },
+                {
+                    "Course Code": "PBC12002",
+                    "Course Name": "English Proficiency 3: Speaking Assessment",
+                    "Weight (%)": 40,
+                    "Task Name": "TASK B: Group Discussion",
+                    "Criterion": "Interactive Communication",
+                    "Max Score": 5,
+                    "Band 1": "Initiates and responds appropriately with minimal prompting.",
+                    "Band 2": "Keeps interaction going with some prompting and support.",
+                    "Band 3": "Maintains and develops interaction towards an outcome with very little support.",
+                    "Band 4": "Occasionally links contributions to other speakers. Negotiates with no support.",
+                    "Band 5": "Actively links contributions to other speakers and negotiates towards an outcome."
+                }
+            ];
+
+            const worksheet = XLSX.utils.json_to_sheet(sampleRows);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Rubric_Template");
+            XLSX.writeFile(workbook, "UniSZA_Rubric_Import_Template.xlsx");
+        }
+
+        function handleExcelRubricUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+                    if (!rows || rows.length === 0) {
+                        alert("The uploaded spreadsheet appears to be empty.");
+                        return;
+                    }
+
+                    // Helper for flexible case-insensitive column header matching
+                    const getCol = (rowObj, keywords) => {
+                        const keys = Object.keys(rowObj);
+                        for (const kw of keywords) {
+                            const match = keys.find(k => k.toLowerCase().trim() === kw || k.toLowerCase().includes(kw));
+                            if (match && rowObj[match] !== "") return String(rowObj[match]).trim();
+                        }
+                        return "";
+                    };
+
+                    const firstRow = rows[0];
+                    const courseCode = (getCol(firstRow, ['course code', 'code']) || "GEN101").toUpperCase();
+                    const courseFullName = getCol(firstRow, ['course name', 'course full name', 'title', 'assessment']) || file.name.replace(/\.[^/.]+$/, "");
+                    const weightVal = parseFloat(getCol(firstRow, ['weight', 'percentage', '%'])) || 40;
+
+                    const taskMap = new Map();
+
+                    rows.forEach((r, idx) => {
+                        const critName = getCol(r, ['criterion', 'criteria', 'item', 'component']);
+                        if (!critName) return; // Skip blank rows
+
+                        const taskName = getCol(r, ['task', 'section', 'part']) || "TASK 1: Assessment";
+                        const maxScore = parseInt(getCol(r, ['max', 'scale', 'points'])) || 5;
+
+                        const descriptors = {};
+                        for (let s = 1; s <= maxScore; s++) {
+                            // Matches "Band 1", "Scale 1", "Score 1", or plain column "1"
+                            const desc = getCol(r, [`band ${s}`, `scale ${s}`, `score ${s}`, `level ${s}`]) || (r[String(s)] ? String(r[String(s)]).trim() : "");
+                            descriptors[s] = desc;
+                        }
+
+                        if (!taskMap.has(taskName)) {
+                            taskMap.set(taskName, {
+                                id: `task_${Date.now()}_${taskMap.size + 1}`,
+                                name: taskName,
+                                criteria: []
+                            });
+                        }
+
+                        taskMap.get(taskName).criteria.push({
+                            id: `crit_${Date.now()}_${idx}`,
+                            name: critName,
+                            max: maxScore,
+                            descriptors: descriptors
+                        });
+                    });
+
+                    const parsedTasks = Array.from(taskMap.values());
+                    if (parsedTasks.length === 0) {
+                        alert("Could not detect any valid rubric criteria. Please ensure your Excel sheet has 'Task Name' and 'Criterion' columns.");
+                        return;
+                    }
+
+                    const newId = "scheme_" + Date.now();
+                    registry[newId] = {
+                        id: newId,
+                        courseCode: courseCode,
+                        courseFullName: courseFullName,
+                        weight: weightVal,
+                        tasks: parsedTasks
+                    };
+
+                    saveRegistry();
+                    closeImportModal();
+                    renderDashboard();
+                    alert(`Successfully imported "${courseFullName}" with ${parsedTasks.length} task(s)!`);
+                } catch (err) {
+                    console.error(err);
+                    alert("Error reading Excel file. Please ensure it is a valid .xlsx, .xls, or .csv file.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // --- EXISTING EDITOR & PRESET FUNCTIONS ---
         function applyCoursePreset(code, name, weight) {
             document.getElementById('courseCode').value = code;
             document.getElementById('courseFullName').value = name;
@@ -337,7 +563,7 @@
                 id: editingProfileId,
                 courseCode: "",
                 courseFullName: "",
-                weight: 30,
+                weight: 40,
                 tasks: [
                     {
                         id: `task_${Date.now()}`,
